@@ -7,18 +7,53 @@
  * Description: This program is used to create the layout 
  * of the client side of a chat website.
  -->
- <!DOCTYPE html>
- <html lang="en">
- <head>
-     <meta charset="UTF-8">
-     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     <title>OSTAA</title>
-     <link rel="stylesheet" type="text/css" href="/style.css">
- </head>
- <body>
+<!DOCTYPE html>
+<html lang="en">
 
- 
-     <script src="script.js"></script>
- </body>
- </html>
- 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSTAA</title>
+    <link rel="stylesheet" type="text/css" href="/style.css">
+</head>
+
+<body>
+    <!-- Form to add a user -->
+    <h2>Add User</h2>
+    <form id="userForm">
+        <label for="username">Username:</label>
+        <input type="text" id="username" required>
+        <br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" required>
+        <br>
+        <input type="submit" value="Add User">
+    </form>
+
+    <!-- Form to add an item for a user -->
+    <h2>Add Item for User</h2>
+    <form id="itemForm">
+        <label for="itemUsername">Username:</label>
+        <input type="text" id="itemUsername" required>
+        <br>
+        <label for="title">Title:</label>
+        <input type="text" id="title" required>
+        <br>
+        <label for="description">Description:</label>
+        <input type="text" id="description" required>
+        <br>
+        <label for="image">Image URL:</label>
+        <input type="text" id="image" required>
+        <br>
+        <label for="price">Price:</label>
+        <input type="number" id="price" step="0.01" required>
+        <br>
+        <label for="stat">Status:</label>
+        <input type="text" id="stat" required>
+        <br>
+        <input type="submit" value="Add Item">
+    </form>
+    <script src="script.js"></script>
+</body>
+
+</html>

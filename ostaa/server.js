@@ -85,41 +85,43 @@ app.use(bp.json());
 
 // /get/users/ (GET) Should return a JSON array containing the information for every user in the database.
 app.get("/get/users/", (req, res) => {
-  User.find({}, (err, users) => {
-    if (err) {
-      res.status(500).send({ error: "Failed to fetch users" });
-    } else {
+  User.find({})
+    .then((users) => {
       res.json(users);
-    }
-  });
+    })
+    .catch((err) => {
+      res.status(500).send({ error: "Failed to fetch users" });
+    });
 });
 
 // /get/items/ (GET) Should return a JSON array containing the information for every item in the database.
 app.get("/get/items/", (req, res) => {
-  Item.find({}, (err, items) => {
-    if (err) {
-      res.status(500).send({ error: "Failed to fetch items" });
-    } else {
+  Item.find({})
+    .then((items) => {
       res.json(items);
-    }
-  });
+    })
+    .catch((err) => {
+      res.status(500).send({ error: "Failed to fetch items" });
+    });
 });
 
-// /get/listings/USERNAME (GET) Should return a JSON array containing every listing (item)for the user USERNAME.
+// /get/listings/USERNAME (GET) Should return a JSON array containing every listing (item) for the user USERNAME.
 app.get("/get/listings/:username", (req, res) => {
   const username = req.params.username;
 
   // Find user by username
   User.findOne({ username: username })
     .populate("listings") // populate listings of that user
-    .exec((err, user) => {
-      if (err) {
-        res.status(500).send({ error: "Failed to fetch listings" });
-      } else if (!user) {
+    .exec()
+    .then((user) => {
+      if (!user) {
         res.status(404).send({ error: "User not found" });
       } else {
         res.json(user.listings);
       }
+    })
+    .catch((err) => {
+      res.status(500).send({ error: "Failed to fetch listings" });
     });
 });
 
@@ -130,14 +132,16 @@ app.get("/get/purchases/:username", (req, res) => {
   // Find user by username
   User.findOne({ username: username })
     .populate("purchases") // populate purchases of that user
-    .exec((err, user) => {
-      if (err) {
-        res.status(500).send({ error: "Failed to fetch purchases" });
-      } else if (!user) {
+    .exec()
+    .then((user) => {
+      if (!user) {
         res.status(404).send({ error: "User not found" });
       } else {
         res.json(user.purchases);
       }
+    })
+    .catch((err) => {
+      res.status(500).send({ error: "Failed to fetch purchases" });
     });
 });
 
@@ -149,13 +153,13 @@ app.get("/search/users/:keyword", (req, res) => {
   const regex = new RegExp(keyword, "i");
 
   // Find users by username containing the keyword
-  User.find({ username: regex }, (err, users) => {
-    if (err) {
-      res.status(500).send({ error: "Failed to search for users" });
-    } else {
+  User.find({ username: regex })
+    .then((users) => {
       res.json(users);
-    }
-  });
+    })
+    .catch((err) => {
+      res.status(500).send({ error: "Failed to search for users" });
+    });
 });
 
 // /search/items/KEYWORD (GET) Should return a JSON list of every item whose description has the substring KEYWORD.
@@ -166,47 +170,44 @@ app.get("/search/items/:keyword", (req, res) => {
   const regex = new RegExp(keyword, "i");
 
   // Find items by description containing the keyword
-  Item.find({ description: regex }, (err, items) => {
-    if (err) {
-      res.status(500).send({ error: "Failed to search for items" });
-    } else {
+  Item.find({ description: regex })
+    .then((items) => {
       res.json(items);
-    }
-  });
+    })
+    .catch((err) => {
+      res.status(500).send({ error: "Failed to search for items" });
+    });
 });
 
 // /add/user/ (POST) Should add a user to the database. The username and password should be sent as POST parameter(s).
-app.post("/add/user/", (req, res) => {
+app.post("/add/user/", async (req, res) => {
   const { username, password } = req.body;
 
-  // Check if username and password are provided
+  // Check if username and password are provided.
   if (!username || !password) {
     return res
       .status(400)
       .send({ error: "Both username and password are required" });
   }
-
   // Create a new user instance
   const newUser = new User({
-    username: username,
-    password: password,
+    username,
+    password,
     listings: [],
     purchases: [],
   });
 
-  // Save the new user to the database
-  newUser.save((err, savedUser) => {
-    if (err) {
-      if (err.code === 11000) {
-        // Duplicate key error (username already exists)
-        return res.status(400).send({ error: "Username already exists" });
-      }
-      return res.status(500).send({ error: "Failed to add user" });
-    }
+  try {
+    const savedUser = await newUser.save();
     res
       .status(201)
       .send({ message: "User added successfully", userId: savedUser._id });
-  });
+  } catch (err) {
+    if (err.code === 11000) {
+      return res.status(400).send({ error: "Username already exists" });
+    }
+    return res.status(500).send({ error: "Failed to add user" });
+  }
 });
 
 /**
@@ -214,18 +215,16 @@ app.post("/add/user/", (req, res) => {
  * (title, description, image, price, status) should be included as POST parameters.
  * The item should be added the USERNAMEs list of listings.
  */
-app.post("/add/item/:username", (req, res) => {
+app.post("/add/item/:username", async (req, res) => {
   const username = req.params.username;
   const { title, description, image, price, stat } = req.body;
 
-  // Check if all necessary parameters are provided
   if (!title || !description || !image || !price || stat === undefined) {
     return res
       .status(400)
       .send({ error: "All item information must be provided" });
   }
 
-  // Create a new item instance
   const newItem = new Item({
     title,
     description,
@@ -234,31 +233,25 @@ app.post("/add/item/:username", (req, res) => {
     stat,
   });
 
-  // Save the new item to the database
-  newItem.save((err, savedItem) => {
-    if (err) {
-      return res.status(500).send({ error: "Failed to add item" });
+  try {
+    const savedItem = await newItem.save();
+
+    const updatedUser = await User.findOneAndUpdate(
+      { username: username },
+      { $push: { listings: savedItem._id } },
+      { new: true, useFindAndModify: false }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).send({ error: "User not found" });
     }
 
-    // Add the saved item's ID to the user's list of listings
-    User.findOneAndUpdate(
-      { username: username },
-      { $push: { listings: savedItem._id } }, // Push the the item to the User's listings list
-      { new: true, useFindAndModify: false }, // Return updated document and disable deprecated 'findAndModify'
-      (err, user) => {
-        if (err) {
-          return res
-            .status(500)
-            .send({ error: "Failed to update user listings" });
-        } else if (!user) {
-          return res.status(404).send({ error: "User not found" });
-        }
-        res
-          .status(201)
-          .send({ message: "Item added successfully", itemId: savedItem._id });
-      }
-    );
-  });
+    res
+      .status(201)
+      .send({ message: "Item added successfully", itemId: savedItem._id });
+  } catch (err) {
+    res.status(500).send({ error: "Failed to add item" });
+  }
 });
 
 app.listen(port, () =>
