@@ -7,3 +7,18 @@
  * Description: This file is responsible for styling the client
  * side of the OSTAA website.
 */
+
+.Labels {
+    margin-top: 10px;
+    margin-bottom: 10px;    
+}
+
+.Inputs {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+#userForm {
+    margin-bottom: 40px;
+}
+

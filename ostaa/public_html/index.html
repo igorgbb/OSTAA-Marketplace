@@ -14,44 +14,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OSTAA</title>
-    <link rel="stylesheet" type="text/css" href="/style.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 
 <body>
     <!-- Form to add a user -->
     <h2>Add User</h2>
     <form id="userForm">
-        <label for="username">Username:</label>
-        <input type="text" id="username" required>
+        <label for="username" class="Labels">Username:</label>
+        <input type="text" id="username" class="Inputs" required>
         <br>
-        <label for="password">Password:</label>
-        <input type="password" id="password" required>
+        <label for="password" class="Labels">Password:</label>
+        <input type="password" id="password" class="Inputs" required>
         <br>
-        <input type="submit" value="Add User">
+        <input type="submit" value="Add User" class="Labels">
     </form>
 
     <!-- Form to add an item for a user -->
     <h2>Add Item for User</h2>
     <form id="itemForm">
-        <label for="itemUsername">Username:</label>
-        <input type="text" id="itemUsername" required>
+        <label for="itemUsername" class="Labels">Username:</label>
+        <input type="text" id="itemUsername" class="Inputs" required>
         <br>
-        <label for="title">Title:</label>
-        <input type="text" id="title" required>
+        <label for="title" class="Labels">Title:</label>
+        <input type="text" id="title" class="Inputs" required>
         <br>
-        <label for="description">Description:</label>
-        <input type="text" id="description" required>
+        <label for="description" class="Labels">Description:</label>
+        <input type="text" id="description" class="Inputs" required>
         <br>
-        <label for="image">Image URL:</label>
-        <input type="text" id="image" required>
+        <label for="image" class="Labels">Image URL:</label>
+        <input type="text" id="image" class="Inputs" required>
         <br>
-        <label for="price">Price:</label>
-        <input type="number" id="price" step="0.01" required>
+        <label for="price" class="Labels">Price:</label>
+        <input type="number" id="price" step="0.01" class="Inputs" required>
         <br>
-        <label for="stat">Status:</label>
-        <input type="text" id="stat" required>
+        <label for="stat" class="Labels">Status:</label>
+        <input type="text" id="stat" class="Inputs" required>
         <br>
-        <input type="submit" value="Add Item">
+        <input type="submit" value="Add Item" class="Labels">
     </form>
     <script src="script.js"></script>
 </body>
