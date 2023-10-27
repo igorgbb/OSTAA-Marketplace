@@ -1,10 +1,13 @@
-/*
+/**
  * Author: Igor Gabriel Bezerra Bernardon, John Ko
  * Date: 10/30/2023
  * Class: CSC 337
  * Instructor: Benjamin Dicken
  *
- * Description:
+ * Description: This setups the server side for an online
+ * marketplace application. The users will have the ability
+ * to login, create listings, search for listings, and make
+ * purchases.
  */
 const mongoose = require("mongoose");
 const express = require("express");
@@ -22,19 +25,12 @@ db.on("error", () => {
 });
 
 /**
- * Each chat object will contain an Alias, a message,
- * and the time it was posted.
+ * The DATABASE will consist of a Item Schema and
+ * a User schema. The item schema will keep track
+ * of the Items listed in the Website. The User
+ * schema will keep track of the users and their
+ * listings and purchases.
  */
-var ChatSchema = new mongoose.Schema({
-  alias: String,
-  message: String,
-  time: {
-    type: Date,
-    default: Date.now,
-  },
-});
-var Chat = mongoose.model("Chat", ChatSchema);
-
 var ItemSchema = new mongoose.Schema({
   title: String,
   description: String,
@@ -219,12 +215,14 @@ app.post("/add/item/:username", async (req, res) => {
   const username = req.params.username;
   const { title, description, image, price, stat } = req.body;
 
+  // Ensure that information is provide.
   if (!title || !description || !image || !price || stat === undefined) {
     return res
       .status(400)
       .send({ error: "All item information must be provided" });
   }
 
+  // Create new Item
   const newItem = new Item({
     title,
     description,
@@ -233,6 +231,7 @@ app.post("/add/item/:username", async (req, res) => {
     stat,
   });
 
+  // Attempt to save Item.
   try {
     const savedItem = await newItem.save();
 

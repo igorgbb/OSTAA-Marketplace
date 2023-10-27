@@ -4,9 +4,17 @@
  * Class: CSC 337
  * Instructor: Benjamin Dicken
  *
- * Description:
+ * Description: This script is responsible for setting up
+ * the client side of the testing of OSTAA marketplace application.
+ * The user will be able to create User's and Listing's that will
+ * be associated with a username provide by the user.
  */
 function addUser() {
+  /**
+   * Description: This function is responsible for adding
+   * users to the Database, by gathering the Client's input
+   * for username and password.
+   */
   const username = document.getElementById("username").value;
   const password = document.getElementById("password").value;
 
@@ -23,6 +31,10 @@ function addUser() {
 }
 
 function addItem() {
+    /**
+     * This functiion is responsible for adding an Item to the 
+     * Database associated with a Username provided by the User.
+     */
   const username = document.getElementById("itemUsername").value;
   const title = document.getElementById("title").value;
   const description = document.getElementById("description").value;
