@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSTAA</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+
+<body>
+    <h1>Ostaa</h1>
+
+    <div id="userTab">
+        <h2 id="welcomeMsg" class="buttons">Welcome joe! What would you like to do?</h2>
+        <input type="text" id="material" class="buttons" required>
+        <button onclick="searchListings()">Search Listings</button>
+        <br>
+        
+        <button onclick="viewListings()" class="buttons">View your Listings</button>
+        <br>
+
+        <button onclick="viewPurchases()" class="buttons">View your purchases</button>
+        <br>
+
+        <button onclick="location.href='./post.html'" class="buttons">Create a Listing</button>
+    </div>
+
+     <!-- List of items will be inserted with class name "Items" -->
+    <div id="itemListTab"></div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

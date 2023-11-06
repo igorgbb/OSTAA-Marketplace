@@ -12,6 +12,7 @@
 const mongoose = require("mongoose");
 const express = require("express");
 const bp = require("body-parser");
+const cookieParser = require('cookie-parser');
 const app = express();
 const port = 80;
 
@@ -66,6 +67,55 @@ var UserSchema = new Schema({
 });
 
 var User = mongoose.model("User", UserSchema);
+
+// Session will be added when a user successfully logged in.
+let sessions = {};
+
+function addSession(username) {
+  let sid = Math.floor(Math.random() * 1000000000);
+  let now = Date.now();
+  sessions[username] = {id: sid, time: now};
+  return sid;
+}
+
+function removeSessions() {
+  let now = Date.now();
+  let usernames = Object.keys(sessions);
+  for (let i = 0; i < usernames.length; i++) {
+    let last = sessions[usernames[i]].time;
+    //if (last + 120000 < now) {
+    if (last + 20000 < now) {
+      delete sessions[usernames[i]];
+    }
+  }
+  console.log(sessions);
+}
+
+// setInterval(removeSessions, 2000);
+
+app.use(cookieParser());
+
+function authenticate(req, res, next) {
+  let c = req.cookies;
+  console.log('auth request:');
+  console.log(req.cookies);
+  if (c != undefined) {
+    if (sessions[c.login.username] != undefined && 
+      sessions[c.login.username].id == c.login.sessionID) {
+      next();
+    } else {
+      res.redirect('/public_html/index.html');
+    }
+  }  else {
+    res.redirect('/public_html/index.html');
+  }
+}
+
+app.use('/app/*', authenticate);
+app.get('/app/*', (req, res, next) => { 
+  console.log('another');
+  next();
+});
 
 app.use(express.static("public_html"));
 app.use((req, res, next) => {
@@ -206,6 +256,26 @@ app.post("/add/user/", async (req, res) => {
   }
 });
 
+/*
+    Post request to log in a user (need to modify I think)
+*/
+app.post('/account/login', (req, res) => { 
+  console.log(sessions);
+  let u = req.body;
+  let p1 = User.find({username: u.username, password: u.password}).exec();
+  p1.then( (results) => { 
+    if (results.length == 0) {
+      res.end('Coult not find account');
+    } else {
+      let sid = addSession(u.username);  
+      res.cookie("login", 
+        {username: u.username, sessionID: sid}, 
+        {maxAge: 60000 * 2 });
+      res.end('SUCCESS');
+    }
+  });
+});
+
 /**
  * /add/item/USERNAME (POST) Should add an item to the database. The items information
  * (title, description, image, price, status) should be included as POST parameters.
@@ -247,9 +317,11 @@ app.post("/add/item/:username", async (req, res) => {
 
     res
       .status(201)
-      .send({ message: "Item added successfully", itemId: savedItem._id });
+      .send({ message: "Item added successfully", itemId: savedItem._id })
+      .redirect("/public_html/home.html");
   } catch (err) {
     res.status(500).send({ error: "Failed to add item" });
+    res.redirect("/public_html/home.html");
   }
 });
 
