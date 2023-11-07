@@ -9,6 +9,9 @@
  * The user will be able to create User's and Listing's that will
  * be associated with a username provide by the user.
  */
+
+
+
 function addUser() {  // need to check the username already exist or not
   /**
    * Description: This function is responsible for adding
@@ -35,7 +38,7 @@ function createListings() {
      * This function is responsible for adding an Item to the 
      * Database associated with a Username provided by the User.
      */
-  const username = document.getElementById("usernameLogin").value;
+  const username = localStorage.getItem("username");
   const title = document.getElementById("title").value;
   const description = document.getElementById("description").value;
   const image = document.getElementById("image").value;
@@ -69,9 +72,12 @@ function login() {
     console.log(text);
     if (text.startsWith('SUCCESS')) {
       alert(text);
+      var welcomeMsg = "Welcome " + us + "! What would you like to do?";
+      localStorage.setItem('welcomeMsg', welcomeMsg);
+      localStorage.setItem("username", us);
       window.location.href = './home.html';
     } else {
-      document.getElementById("loginFail").innerText = "Issue loggin with that info";
+      document.getElementById("loginFail").innerText = "Issue logging with that info";
     }
   });
 }
@@ -115,24 +121,30 @@ function viewPurchases() {
   });
 }
 
-document
-  .getElementById("createForm")
-  .addEventListener("submit", function (event) {
-    event.preventDefault();
-    addUser();
+document.addEventListener("DOMContentLoaded", function() {
+  document
+    .getElementById("itemForm")
+    .addEventListener("submit", function (event) {
+      event.preventDefault();
+      createListings();
   });
+});
+  
+document.addEventListener("DOMContentLoaded", function() {
+  document
+    .getElementById("userForm")
+    .addEventListener("submit", function (event) {
+      event.preventDefault();
+      login();
+  });
+});
 
-document
-  .getElementById("userForm")
-  .addEventListener("submit", function (event) {
-    event.preventDefault();
-    login();
+document.addEventListener("DOMContentLoaded", function() {
+  document
+    .getElementById("createForm")
+    .addEventListener("submit", function (event) {
+      event.preventDefault();
+      addUser();
   });
+});
 
-document
-  .getElementById("itemForm")
-  .addEventListener("submit", function (event) {
-    event.preventDefault();
-    alert("1");
-    createListings();
-  });

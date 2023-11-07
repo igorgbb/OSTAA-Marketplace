@@ -12,7 +12,7 @@
     <h1>Ostaa</h1>
 
     <div id="userTab">
-        <h2 id="welcomeMsg" class="buttons">Welcome joe! What would you like to do?</h2>
+        <h2 id="welcomeMsg" class="buttons"></h2>
         <input type="text" id="material" class="buttons" required>
         <button onclick="searchListings()">Search Listings</button>
         <br>
@@ -30,6 +30,15 @@
     <div id="itemListTab"></div>
 
     <script src="script.js"></script>
+    
+    <script>
+        window.onload = function() {
+            var welcomeMsg = localStorage.getItem('welcomeMsg');
+            if(welcomeMsg) {
+              document.getElementById("welcomeMsg").innerText = welcomeMsg;
+            }
+          }
+    </script>
 </body>
 
 </html>

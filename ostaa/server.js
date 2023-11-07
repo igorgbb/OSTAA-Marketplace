@@ -91,7 +91,7 @@ function removeSessions() {
   console.log(sessions);
 }
 
-// setInterval(removeSessions, 2000);
+setInterval(removeSessions, 2000);
 
 app.use(cookieParser());
 
@@ -104,10 +104,10 @@ function authenticate(req, res, next) {
       sessions[c.login.username].id == c.login.sessionID) {
       next();
     } else {
-      res.redirect('/public_html/index.html');
+      res.redirect('/index.html');
     }
   }  else {
-    res.redirect('/public_html/index.html');
+    res.redirect('/index.html');
   }
 }
 
@@ -269,8 +269,7 @@ app.post('/account/login', (req, res) => {
     } else {
       let sid = addSession(u.username);  
       res.cookie("login", 
-        {username: u.username, sessionID: sid}, 
-        {maxAge: 60000 * 2 });
+        {username: u.username, sessionID: sid}, );
       res.end('SUCCESS');
     }
   });
