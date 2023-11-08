@@ -104,6 +104,7 @@ function authenticate(req, res, next) {
       sessions[c.login.username].id == c.login.sessionID) {
       next();
     } else {
+      res.clearCookie("login");
       res.redirect('/index.html');
     }
   }  else {
@@ -111,11 +112,8 @@ function authenticate(req, res, next) {
   }
 }
 
-app.use('/app/*', authenticate);
-app.get('/app/*', (req, res, next) => { 
-  console.log('another');
-  next();
-});
+app.use('/home.html', authenticate);
+app.use('/post.html', authenticate);
 
 app.use(express.static("public_html"));
 app.use((req, res, next) => {
@@ -316,11 +314,12 @@ app.post("/add/item/:username", async (req, res) => {
 
     res
       .status(201)
-      .send({ message: "Item added successfully", itemId: savedItem._id })
-      .redirect("/public_html/home.html");
+      .redirect('/home.html');
+
+      // .redirect('/home.html');
+      // .send({ message: "Item added successfully", itemId: savedItem._id });
   } catch (err) {
     res.status(500).send({ error: "Failed to add item" });
-    res.redirect("/public_html/home.html");
   }
 });
 

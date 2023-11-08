@@ -52,9 +52,32 @@ function createListings() {
     },
     body: JSON.stringify({ title, description, image, price, stat }),
   })
-    .then((response) => response.json())
-    .then((data) => alert(data.message || data.error))
-    .catch((error) => console.error("Error:", error));
+  .then((response) => {
+    if (!response.ok) {
+      return response.json().then((error) => {
+        throw new Error(error.error);
+      });
+    }
+    return response;
+  })
+  .then(() => {
+    // navigate to home.html or refresh the page
+    window.location.href = "/home.html";
+  })
+  .catch((error) => {
+    // handle the error
+    console.error("Error:", error);
+  });
+  // fetch(`/add/item/${username}`, {
+  //   method: "POST",
+  //   headers: {
+  //     "Content-Type": "application/json",
+  //   },
+  //   body: JSON.stringify({ title, description, image, price, stat }),
+  // })
+  //   .then((response) => response.json())
+  //   .then((data) => alert(data.message || data.error))
+  //   .catch((error) => console.error("Error:", error));
 }
 
 function login() {
