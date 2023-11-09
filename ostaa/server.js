@@ -86,7 +86,7 @@ function removeSessions() {
   let usernames = Object.keys(sessions);
   for (let i = 0; i < usernames.length; i++) {
     let last = sessions[usernames[i]].time;
-    if (last + 20000 < now) {
+    if (last + 600000 < now) {
       delete sessions[usernames[i]];
     }
   }
@@ -112,7 +112,7 @@ function authenticate(req, res, next) {
   let c = req.cookies;
   console.log("auth request:");
   console.log(req.cookies);
-  if (c != undefined) {
+  if (c != undefined && c.login != undefined) {
     if (
       sessions[c.login.username] != undefined &&
       sessions[c.login.username].id == c.login.sessionID
