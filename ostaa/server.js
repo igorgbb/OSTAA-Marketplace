@@ -1,6 +1,6 @@
 /**
  * Author: Igor Gabriel Bezerra Bernardon, John Ko
- * Date: 10/30/2023
+ * Date: 11/07/2023
  * Class: CSC 337
  * Instructor: Benjamin Dicken
  *
@@ -11,8 +11,10 @@
  */
 const mongoose = require("mongoose");
 const express = require("express");
+const multer = require("multer"); // Used for images
+const upload = multer({ limits: { fileSize: 5 * 1024 * 1024 } });
 const bp = require("body-parser");
-const cookieParser = require('cookie-parser');
+const cookieParser = require("cookie-parser");
 const app = express();
 const port = 80;
 
@@ -35,10 +37,11 @@ db.on("error", () => {
 var ItemSchema = new mongoose.Schema({
   title: String,
   description: String,
-  image: String,
+  image: Buffer, // Changed from String to Buffer to store image data
   price: Number,
   stat: String,
 });
+
 var Item = mongoose.model("Item", ItemSchema);
 
 // Define the UserSchema
@@ -74,7 +77,7 @@ let sessions = {};
 function addSession(username) {
   let sid = Math.floor(Math.random() * 1000000000);
   let now = Date.now();
-  sessions[username] = {id: sid, time: now};
+  sessions[username] = { id: sid, time: now };
   return sid;
 }
 
@@ -83,7 +86,6 @@ function removeSessions() {
   let usernames = Object.keys(sessions);
   for (let i = 0; i < usernames.length; i++) {
     let last = sessions[usernames[i]].time;
-    //if (last + 120000 < now) {
     if (last + 20000 < now) {
       delete sessions[usernames[i]];
     }
@@ -96,24 +98,37 @@ setInterval(removeSessions, 2000);
 app.use(cookieParser());
 
 function authenticate(req, res, next) {
+  /**
+   * Description: This function is responsible for authenticating
+   * a user based on its cookie information
+   *
+   * Parameters:
+   * req = Request
+   * res = Response
+   * next = Next middleware function
+   *
+   * Return: None
+   */
   let c = req.cookies;
-  console.log('auth request:');
+  console.log("auth request:");
   console.log(req.cookies);
   if (c != undefined) {
-    if (sessions[c.login.username] != undefined && 
-      sessions[c.login.username].id == c.login.sessionID) {
+    if (
+      sessions[c.login.username] != undefined &&
+      sessions[c.login.username].id == c.login.sessionID
+    ) {
       next();
     } else {
       res.clearCookie("login");
-      res.redirect('/index.html');
+      res.redirect("/index.html");
     }
-  }  else {
-    res.redirect('/index.html');
+  } else {
+    res.redirect("/index.html");
   }
 }
 
-app.use('/home.html', authenticate);
-app.use('/post.html', authenticate);
+app.use("/home.html", authenticate);
+app.use("/post.html", authenticate);
 
 app.use(express.static("public_html"));
 app.use((req, res, next) => {
@@ -255,20 +270,19 @@ app.post("/add/user/", async (req, res) => {
 });
 
 /*
-    Post request to log in a user (need to modify I think)
+    Post request to log in a user 
 */
-app.post('/account/login', (req, res) => { 
+app.post("/account/login", (req, res) => {
   console.log(sessions);
   let u = req.body;
-  let p1 = User.find({username: u.username, password: u.password}).exec();
-  p1.then( (results) => { 
+  let p1 = User.find({ username: u.username, password: u.password }).exec();
+  p1.then((results) => {
     if (results.length == 0) {
-      res.end('Coult not find account');
+      res.end("Coult not find account");
     } else {
-      let sid = addSession(u.username);  
-      res.cookie("login", 
-        {username: u.username, sessionID: sid}, );
-      res.end('SUCCESS');
+      let sid = addSession(u.username);
+      res.cookie("login", { username: u.username, sessionID: sid });
+      res.end("SUCCESS");
     }
   });
 });
@@ -278,9 +292,10 @@ app.post('/account/login', (req, res) => {
  * (title, description, image, price, status) should be included as POST parameters.
  * The item should be added the USERNAMEs list of listings.
  */
-app.post("/add/item/:username", async (req, res) => {
+app.post("/add/item/:username", upload.single("image"), async (req, res) => {
   const username = req.params.username;
-  const { title, description, image, price, stat } = req.body;
+  const { title, description, price, stat } = req.body;
+  const image = req.file.buffer;
 
   // Ensure that information is provide.
   if (!title || !description || !image || !price || stat === undefined) {
@@ -312,14 +327,46 @@ app.post("/add/item/:username", async (req, res) => {
       return res.status(404).send({ error: "User not found" });
     }
 
-    res
-      .status(201)
-      .redirect('/home.html');
+    res.status(201).redirect("/home.html");
 
-      // .redirect('/home.html');
-      // .send({ message: "Item added successfully", itemId: savedItem._id });
+    // .redirect('/home.html');
+    // .send({ message: "Item added successfully", itemId: savedItem._id });
   } catch (err) {
     res.status(500).send({ error: "Failed to add item" });
+  }
+});
+
+// /add/pruchase/:itemId/:username marks an item as purchased and adds it to the users purchases.
+app.post("/add/purchase/:itemId/:username", async (req, res) => {
+  const { itemId, username } = req.params;
+
+  try {
+    // Update the item's status to 'SOLD'
+    const item = await Item.findById(itemId);
+    if (!item) {
+      return res.status(404).send({ error: "Item not found" });
+    }
+    if (item.stat === "SOLD") {
+      return res.status(400).send({ error: "Item already sold" });
+    }
+    item.stat = "SOLD";
+    await item.save();
+
+    // Add the item to the user's purchases
+    const user = await User.findOneAndUpdate(
+      { username: username },
+      { $push: { purchases: item._id } },
+      { new: true, useFindAndModify: false }
+    );
+    if (!user) {
+      return res.status(404).send({ error: "User not found" });
+    }
+
+    // Respond with a success message
+    res.status(200).send({ message: "Purchase completed successfully" });
+  } catch (err) {
+    // If an error occurs, send an error message
+    res.status(500).send({ error: "Failed to complete purchase" });
   }
 });
 
