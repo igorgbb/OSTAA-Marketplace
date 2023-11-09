@@ -1,3 +1,12 @@
+<!-- 
+ * Author: Igor Gabriel Bezerra Bernardon, John Ko
+ * Date: 11/07/2023
+ * Class: CSC 337
+ * Instructor: Benjamin Dicken
+ *
+ * Description: This program is used to create the layout 
+ * of the form to post a listing on a marketplace website.
+ -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -21,14 +30,16 @@
         <br>
 
         <label for="price" class="Labels">Price:</label>
-        <input type="text" id="price" class="Inputs" required>
+        <input type="number" id="price" class="Inputs" required>
         <br>
 
         <label for="stat" class="Labels">Status:</label>
-        <input type="text" id="stat" class="Inputs" required>
+        <input type="text" id="stat" class="Inputs" required pattern="SALE|SOLD" title="Please enter SALE or SOLD">
         <br>
 
-        <input type="file" value="Choose File" accept="image/*" name="photo" class="Labels" id="image">
+        <label for="image">Choose File:</label>
+        <input type="file" accept="image/*" name="photo" class="Labels" id="image">
+
 
         <input type="submit" value="Create Post" class="Labels">
     </form>

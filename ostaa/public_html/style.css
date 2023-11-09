@@ -64,6 +64,7 @@ h1, .headers {
     width: 100vw;
     background-color: lightgreen;
     border: 3px grey solid;
+    overflow: scroll;
 }
 
 .buttons {
@@ -73,4 +74,17 @@ h1, .headers {
 
 #welcomeMsg {
     margin: 10%;
+}
+
+.Item {
+    margin-left:5vw;
+    background-color: aqua;
+    border: 3px black solid;
+    right: 10px;
+    margin-top: 10vh;
+    padding: 5%;
+    margin-right: 60vw;
+    line-height: 0.8;
+    font-size: 120%;
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
